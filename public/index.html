@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flight Price Checker — BLR &rarr; PAT</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="plane">&#9992;</span>
+      <div>
+        <h1 id="routeTitle">Flight Price Checker</h1>
+        <p id="routeSub" class="muted">BLR &rarr; PAT</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="lastCheck" class="muted small">Never checked</span>
+      <button id="checkNowBtn" class="btn primary">Check Prices Now</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <h2>Week Overview</h2>
+        <span id="badges" class="badges"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="datesTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Latest Price</th>
+              <th>Stops</th>
+              <th>Baseline (first observed)</th>
+              <th>Change</th>
+              <th>Status</th>
+              <th>History</th>
+              <th>Book</th>
+            </tr>
+          </thead>
+          <tbody id="datesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <div class="card-header"><h2>Recipients</h2></div>
+        <form id="recipientForm" class="row-form">
+          <input type="text" id="recName" placeholder="Name (optional)" />
+          <input type="email" id="recEmail" placeholder="email@example.com" required />
+          <button type="submit" class="btn">Add</button>
+        </form>
+        <ul id="recipientList" class="list"></ul>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Send Report</h2></div>
+        <form id="reportForm" class="stack-form">
+          <label>From <input type="date" id="reportStart" /></label>
+          <label>To <input type="date" id="reportEnd" /></label>
+          <label class="muted small">Leave recipients unchecked below to send to everyone.</label>
+          <div id="reportRecipients" class="list checkbox-list"></div>
+          <button type="submit" class="btn primary">Send Report Email</button>
+          <p id="reportStatus" class="status"></p>
+        </form>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Settings</h2>
+        <button id="toggleSettings" class="btn ghost">Show / Hide</button>
+      </div>
+      <form id="settingsForm" class="settings-grid hidden">
+        <fieldset>
+          <legend>Route &amp; Schedule</legend>
+          <label>Origin (IATA) <input type="text" id="setOrigin" maxlength="3" /></label>
+          <label>Destination (IATA) <input type="text" id="setDestination" maxlength="3" /></label>
+          <label>Start date <input type="date" id="setStartDate" /></label>
+          <label>End date <input type="date" id="setEndDate" /></label>
+          <label>Currency <input type="text" id="setCurrency" maxlength="3" /></label>
+          <label>Cron schedule <input type="text" id="setCron" placeholder="0 8 * * *" /></label>
+          <label class="checkbox-row"><input type="checkbox" id="setSchedulerEnabled" /> Scheduler enabled</label>
+          <label class="checkbox-row"><input type="checkbox" id="setAutoEmail" /> Auto-email recipients when a price drop is found</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Price source</legend>
+          <p class="muted small">Prices are scraped live from Google Flights by default &mdash; no key needed, matches what you see at google.com/travel/flights. Kiwi/Amadeus below are optional secondary sources used only if the Google Flights scrape fails for a date.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Kiwi.com Tequila API (optional fallback) <span id="kiwiStatus" class="pill"></span></legend>
+          <p class="muted small">Real fares + a direct booking checkout link, if you get access at partners.kiwi.com/tequila.</p>
+          <label>API Key <input type="text" id="setKiwiKey" autocomplete="off" placeholder="leave as-is to keep current" /></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Amadeus API (optional fallback) <span id="amadeusStatus" class="pill"></span></legend>
+          <p class="muted small">Last-resort fallback if you have Amadeus access. Without any key, the dashboard falls further back to simulated demo prices only if the Google Flights scrape itself fails.</p>
+          <label>API Key <input type="text" id="setAmKey" autocomplete="off" /></label>
+          <label>API Secret <input type="password" id="setAmSecret" autocomplete="off" placeholder="leave as-is to keep current" /></label>
+          <label>Environment
+            <select id="setAmEnv">
+              <option value="test">test (sandbox)</option>
+              <option value="production">production (live)</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>SMTP (email sending) <span id="smtpStatus" class="pill"></span></legend>
+          <label>Host <input type="text" id="setSmtpHost" placeholder="smtp.gmail.com" /></label>
+          <label>Port <input type="number" id="setSmtpPort" placeholder="587" /></label>
+          <label class="checkbox-row"><input type="checkbox" id="setSmtpSecure" /> Use TLS (secure, usually port 465)</label>
+          <label>Username <input type="text" id="setSmtpUser" autocomplete="off" /></label>
+          <label>Password <input type="password" id="setSmtpPass" autocomplete="off" placeholder="leave as-is to keep current" /></label>
+          <label>From header <input type="text" id="setSmtpFrom" placeholder="Flight Price Checker <no-reply@example.com>" /></label>
+        </fieldset>
+
+        <div class="settings-actions">
+          <button type="submit" class="btn primary">Save Settings</button>
+          <p id="settingsStatus" class="status"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>Activity Log</h2></div>
+      <ul id="logList" class="list log-list"></ul>
+    </section>
+  </main>
+
+  <div id="historyModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="btn ghost close">&times;</button>
+      <h3 id="historyTitle"></h3>
+      <canvas id="historyChart" width="600" height="240"></canvas>
+      <table id="historyTable"><thead><tr><th>Checked At</th><th>Price</th><th>Stops</th><th>Source</th><th>Book</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
