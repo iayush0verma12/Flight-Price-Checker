@@ -1,4 +1,4 @@
-# Flight Price Checker — BLR → PAT
+# Flight Price Checker — Origin → Destination
 
 Automated dashboard that checks Bangalore (BLR) → Patna (PAT) flight fares for
 **2 Nov 2026 – 7 Nov 2026**, once per day (or on-demand), remembers the first
